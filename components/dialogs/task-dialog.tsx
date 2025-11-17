@@ -14,14 +14,8 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Plus, Trash2, Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { DatePicker } from '@/components/ui/date-picker';
+import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface TaskDialogProps {
@@ -344,52 +338,22 @@ export function TaskDialog({ task, open, onOpenChange }: TaskDialogProps) {
 
           {/* Date */}
           <div>
-            <label className="text-sm font-medium mb-2 block">Date</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, 'PPP') : 'Pick a date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                    mode="single"
-                    selected={date ? new Date(date) : undefined}
-                    onSelect={(day) => setDate(day ? day.getTime() : null)}
-                    disabled={(_date) => false}
-                    initialFocus
-                  />
-              </PopoverContent>
-            </Popover>
+            <label className="text-sm font-medium mb-2 block">Scheduled Date</label>
+            <DatePicker
+              date={date ? new Date(date) : null}
+              onDateChange={(day) => setDate(day ? day.getTime() : null)}
+              placeholder="Pick a date"
+            />
           </div>
 
           {/* Deadline */}
           <div>
             <label className="text-sm font-medium mb-2 block">Deadline</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {deadline ? format(deadline, 'PPP') : 'Pick a deadline'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={deadline ? new Date(deadline) : undefined}
-                  onSelect={(day) => setDeadline(day ? day.getTime() : null)}
-                  disabled={(_date) => false}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              date={deadline ? new Date(deadline) : null}
+              onDateChange={(day) => setDeadline(day ? day.getTime() : null)}
+              placeholder="Pick a deadline"
+            />
           </div>
 
           {/* Time Estimates */}

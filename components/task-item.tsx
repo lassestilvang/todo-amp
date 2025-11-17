@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { Trash2, Calendar } from 'lucide-react';
+import { Trash2, Calendar, CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { TaskDialog } from './dialogs/task-dialog';
@@ -18,8 +18,14 @@ interface TaskItemProps {
 }
 
 export function TaskItem({ task }: TaskItemProps) {
-  const { deleteTask, toggleTaskCompletion } = useStore();
+  const { deleteTask, toggleTaskCompletion, subtasks, labels, taskLabels } = useStore();
   const [showDetails, setShowDetails] = useState(false);
+
+  const taskSubtasks = subtasks.filter((s) => s.taskId === task.id);
+  const taskLabelIds = taskLabels
+    .filter((tl) => tl.taskId === task.id)
+    .map((tl) => tl.labelId);
+  const taskLabelObjs = labels.filter((l) => taskLabelIds.includes(l.id));
 
   const handleToggle = async () => {
     toggleTaskCompletion(task.id);
@@ -112,7 +118,56 @@ export function TaskItem({ task }: TaskItemProps) {
               </p>
             )}
 
+            {/* Labels Row */}
+            {taskLabelObjs.length > 0 && (
+              <div className="flex items-center gap-1 flex-wrap">
+                {taskLabelObjs.map((label) => (
+                  <Badge
+                    key={label.id}
+                    variant="secondary"
+                    className="text-xs"
+                    style={{
+                      backgroundColor: label.color ? `${label.color}20` : undefined,
+                      color: label.color,
+                    }}
+                  >
+                    {label.emoji} {label.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Subtasks Row */}
+            {taskSubtasks.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {taskSubtasks.map((subtask) => (
+                  <div key={subtask.id} className="flex items-center gap-1 text-xs text-muted-foreground">
+                    {subtask.completed ? (
+                      <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <Circle className="w-3 h-3" />
+                    )}
+                    <span className={subtask.completed ? 'line-through' : ''}>
+                      {subtask.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Date and Time Row */}
             <div className="flex items-center gap-2 flex-wrap">
+              {task.deadline && (
+                <div className={cn(
+                  'flex items-center gap-1 text-xs px-2 py-1 rounded',
+                  isOverdue
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 font-semibold'
+                    : 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200'
+                )}>
+                  <Calendar className="w-3 h-3" />
+                  {format(task.deadline, 'MMM d')}
+                </div>
+              )}
               {task.date && (
                 <div className={cn(
                   'flex items-center gap-1 text-xs',

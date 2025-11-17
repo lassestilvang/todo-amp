@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DatePicker } from '@/components/ui/date-picker';
 import { toast } from 'react-hot-toast';
 
 interface CreateTaskDialogProps {
@@ -25,6 +26,7 @@ export function CreateTaskDialog({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [listId, setListId] = useState(selectedListId || lists[0]?.id || '');
+  const [date, setDate] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,6 +52,7 @@ export function CreateTaskDialog({
           listId,
           name,
           description,
+          date,
         }),
       });
 
@@ -63,6 +66,7 @@ export function CreateTaskDialog({
 
       setName('');
       setDescription('');
+      setDate(null);
       onOpenChange(false);
     } catch {
       toast.error('Failed to create task');
@@ -111,6 +115,15 @@ export function CreateTaskDialog({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Scheduled Date</label>
+            <DatePicker
+              date={date ? new Date(date) : null}
+              onDateChange={(day) => setDate(day ? day.getTime() : null)}
+              placeholder="Pick a date"
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

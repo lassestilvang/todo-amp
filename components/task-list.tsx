@@ -69,7 +69,9 @@ export function TaskList() {
             );
             break;
           case 'upcoming':
-            filtered = filtered.filter((t) => t.date && t.date >= todayTime);
+            filtered = filtered.filter(
+              (t) => (t.date && t.date >= todayTime) || (t.deadline && t.deadline >= todayTime)
+            );
             break;
           case 'all':
             // No view filter, include all
