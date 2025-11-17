@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { Trash2, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { TaskDetailDialog } from './dialogs/task-detail-dialog';
+import { TaskDialog } from './dialogs/task-dialog';
 import { toast } from 'react-hot-toast';
 
 interface TaskItemProps {
@@ -126,7 +126,12 @@ export function TaskItem({ task }: TaskItemProps) {
               )}
               {task.estimatedTime && (
                 <Badge variant="secondary" className="text-xs">
-                  {task.estimatedTime}
+                  ⏱️ {task.estimatedTime}
+                </Badge>
+              )}
+              {task.actualTime && (
+                <Badge variant="secondary" className="text-xs">
+                  ✓ {task.actualTime}
                 </Badge>
               )}
             </div>
@@ -146,7 +151,7 @@ export function TaskItem({ task }: TaskItemProps) {
         </div>
       </motion.div>
 
-      <TaskDetailDialog
+      <TaskDialog
         task={task}
         open={showDetails}
         onOpenChange={setShowDetails}

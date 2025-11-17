@@ -5,6 +5,7 @@ import type {
   Task,
   Subtask,
   Label,
+  TaskLabel,
   Reminder,
   Attachment,
   TaskLog,
@@ -18,7 +19,7 @@ interface AppState {
   lists: List[];
   selectedListId: string | null;
   setLists: (lists: List[]) => void;
-  setSelectedListId: (id: string) => void;
+  setSelectedListId: (id: string | null) => void;
   addList: (list: List) => void;
   updateList: (id: string, updates: Partial<List>) => void;
   deleteList: (id: string) => void;
@@ -45,6 +46,12 @@ interface AppState {
   addLabel: (label: Label) => void;
   updateLabel: (id: string, updates: Partial<Label>) => void;
   deleteLabel: (id: string) => void;
+
+  // Task Labels
+  taskLabels: TaskLabel[];
+  setTaskLabels: (taskLabels: TaskLabel[]) => void;
+  addTaskLabel: (taskLabel: TaskLabel) => void;
+  deleteTaskLabel: (taskId: string, labelId: string) => void;
 
   // Attachments
   attachments: Attachment[];
@@ -74,6 +81,8 @@ interface AppState {
   setCurrentView: (view: ViewType) => void;
   selectedTaskId: string | null;
   setSelectedTaskId: (id: string | null) => void;
+  selectedLabelId: string | null;
+  setSelectedLabelId: (id: string | null) => void;
   showCompleted: boolean;
   toggleShowCompleted: () => void;
   searchQuery: string;
@@ -179,6 +188,18 @@ export const useStore = create<AppState>()(
         labels: state.labels.filter((label) => label.id !== id),
       })),
 
+    // Task Labels
+    taskLabels: [],
+    setTaskLabels: (taskLabels) => set({ taskLabels }),
+    addTaskLabel: (taskLabel) =>
+      set((state) => ({ taskLabels: [...state.taskLabels, taskLabel] })),
+    deleteTaskLabel: (taskId, labelId) =>
+      set((state) => ({
+        taskLabels: state.taskLabels.filter(
+          (tl) => !(tl.taskId === taskId && tl.labelId === labelId)
+        ),
+      })),
+
     // Attachments
     attachments: [],
     setAttachments: (attachments) => set({ attachments }),
@@ -220,6 +241,8 @@ export const useStore = create<AppState>()(
     setCurrentView: (view) => set({ currentView: view }),
     selectedTaskId: null,
     setSelectedTaskId: (id) => set({ selectedTaskId: id }),
+    selectedLabelId: null,
+    setSelectedLabelId: (id) => set({ selectedLabelId: id }),
     showCompleted: true,
     toggleShowCompleted: () =>
       set((state) => ({ showCompleted: !state.showCompleted })),

@@ -10,6 +10,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTasks,
     setLabels,
     setSubtasks,
+    setTaskLabels,
     setReminders,
     setAttachments,
     setTaskLogs,
@@ -20,12 +21,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Load initial data from database
     const loadData = async () => {
       try {
-        const [listsRes, tasksRes, labelsRes, subtasksRes] = await Promise.all([
-          fetch('/api/lists'),
-          fetch('/api/tasks'),
-          fetch('/api/labels'),
-          fetch('/api/subtasks?taskId=all'),
-        ]);
+        const [listsRes, tasksRes, labelsRes, subtasksRes, taskLabelsRes] =
+          await Promise.all([
+            fetch('/api/lists'),
+            fetch('/api/tasks'),
+            fetch('/api/labels'),
+            fetch('/api/subtasks?taskId=all'),
+            fetch('/api/task-labels'),
+          ]);
 
         if (listsRes.ok) {
           const lists = await listsRes.json();
@@ -53,6 +56,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             // Subtasks endpoint not found or error
           }
         }
+
+        // Load all task labels
+        if (taskLabelsRes.ok) {
+          try {
+            const taskLabels = await taskLabelsRes.json();
+            if (Array.isArray(taskLabels)) {
+              setTaskLabels(taskLabels);
+            }
+          } catch {
+            // Task labels endpoint error
+          }
+        }
       } catch (error) {
         console.error('Failed to load initial data:', error);
       }
@@ -64,6 +79,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTasks,
     setLabels,
     setSubtasks,
+    setTaskLabels,
     setReminders,
     setAttachments,
     setTaskLogs,

@@ -21,10 +21,13 @@ export function Sidebar() {
     lists,
     labels,
     tasks,
+    taskLabels,
     currentView,
     setCurrentView,
     setSelectedListId,
     selectedListId,
+    selectedLabelId,
+    setSelectedLabelId,
   } = useStore();
 
   const [showCreateList, setShowCreateList] = useState(false);
@@ -109,9 +112,11 @@ export function Sidebar() {
             return (
               <motion.button
                 key={view.id}
-                onClick={() =>
-                  setCurrentView(view.id as 'today' | 'next7days' | 'upcoming' | 'all')
-                }
+                onClick={() => {
+                  setCurrentView(view.id as 'today' | 'next7days' | 'upcoming' | 'all');
+                  setSelectedListId(null); // Clear list selection when selecting a view
+                  setSelectedLabelId(null); // Clear label selection when selecting a view
+                }}
                 className={cn(
                   'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                   currentView === view.id
@@ -157,11 +162,12 @@ export function Sidebar() {
               ).length;
               return (
                 <motion.button
-                  key={list.id}
-                  onClick={() => {
-                    setSelectedListId(list.id);
-                    setCurrentView('all' as const);
-                  }}
+                   key={list.id}
+                   onClick={() => {
+                     setSelectedListId(list.id);
+                     setSelectedLabelId(null); // Clear label selection when selecting a list
+                     setCurrentView('all' as const);
+                   }}
                   className={cn(
                     'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
                     selectedListId === list.id && currentView === 'all'
@@ -205,15 +211,43 @@ export function Sidebar() {
             {labels.length === 0 ? (
               <p className="text-xs text-muted-foreground">No labels yet</p>
             ) : (
-              labels.map((label) => (
-                <div
-                  key={label.id}
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-accent/50 transition-colors"
-                >
-                  <span>{label.emoji}</span>
-                  <span className="truncate text-sm">{label.name}</span>
-                </div>
-              ))
+              labels.map((label) => {
+                const labelTaskCount = tasks.filter(
+                  (t) =>
+                    !t.completed &&
+                    taskLabels.some((tl) => tl.taskId === t.id && tl.labelId === label.id)
+                ).length;
+                return (
+                  <motion.button
+                    key={label.id}
+                    onClick={() => {
+                      if (selectedLabelId === label.id) {
+                        setSelectedLabelId(null);
+                      } else {
+                        setSelectedLabelId(label.id);
+                        setSelectedListId(null); // Clear list selection when selecting a label
+                      }
+                    }}
+                    className={cn(
+                      'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
+                      selectedLabelId === label.id
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-foreground hover:bg-accent/50'
+                    )}
+                    whileHover={{ x: 2 }}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span>{label.emoji}</span>
+                      <span className="truncate text-sm">{label.name}</span>
+                    </div>
+                    {labelTaskCount > 0 && (
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        {labelTaskCount}
+                      </Badge>
+                    )}
+                  </motion.button>
+                );
+              })
             )}
           </div>
         </div>

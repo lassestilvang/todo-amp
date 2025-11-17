@@ -39,6 +39,9 @@ A complete, production-ready daily task planner web application built with Next.
 - ✅ Subtasks with individual completion tracking
 - ✅ Overdue badge counter
 - ✅ Search functionality
+- ✅ Label assignment to tasks
+- ✅ Label filtering in task list
+- ✅ Task-label associations persisted to database
 
 #### 5. Search
 - ✅ Fuzzy search using Fuse.js
@@ -86,7 +89,7 @@ Database:
 - `app/page.tsx` - Main application page
 - `app/globals.css` - Tailwind and theme configuration
 
-**API Routes (9 endpoints):**
+**API Routes (11 endpoints):**
 - `app/api/lists/route.ts` - List CRUD
 - `app/api/lists/[id]/route.ts` - Individual list operations
 - `app/api/tasks/route.ts` - Task CRUD
@@ -94,6 +97,8 @@ Database:
 - `app/api/subtasks/route.ts` - Subtask CRUD
 - `app/api/subtasks/[id]/route.ts` - Individual subtask operations
 - `app/api/labels/route.ts` - Label CRUD
+- `app/api/task-labels/route.ts` - Task-label associations CRUD
+- `app/api/task-labels/[taskId]/[labelId]/route.ts` - Individual association delete
 
 **Components (13 files):**
 - `components/sidebar.tsx` - Main navigation sidebar
@@ -160,10 +165,11 @@ Single centralized store with subscriptions for:
 - **Lists**: add, update, delete, select
 - **Subtasks**: add, update, delete, toggle completion
 - **Labels**: add, update, delete
+- **Task Labels**: add, delete, filter by label
 - **Reminders**: add, delete
 - **Attachments**: add, delete
 - **Logs**: add (read-only for auditing)
-- **UI State**: current view, selected items, show completed flag, search query
+- **UI State**: current view, selected items, show completed flag, search query, selected label
 
 All state changes are immediately reflected in the UI with optimistic updates.
 
@@ -296,11 +302,11 @@ To deploy:
 ## Summary
 
 This is a **complete, fully functional task planner** with:
-- ✅ 36 production-ready files
-- ✅ 9 API endpoints
+- ✅ 38 production-ready files
+- ✅ 11 API endpoints
 - ✅ Comprehensive database schema
-- ✅ Full CRUD operations
-- ✅ Professional UI/UX
+- ✅ Full CRUD operations with label associations
+- ✅ Professional UI/UX with label filtering
 - ✅ 19 passing tests
 - ✅ Proper error handling
 - ✅ Type-safe throughout

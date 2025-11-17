@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Task } from '@/lib/db';
 import { TaskItem } from './task-item';
-import { CreateTaskDialog } from './dialogs/create-task-dialog';
+import { TaskDialog } from './dialogs/task-dialog';
 import { Button } from '@/components/ui/button';
 import { Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -15,11 +15,14 @@ export function TaskList() {
   const {
     tasks,
     lists,
+    labels,
     currentView,
     selectedListId,
+    selectedLabelId,
     showCompleted,
     searchQuery,
     setSearchQuery,
+    taskLabels,
   } = useStore();
 
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
@@ -38,32 +41,40 @@ export function TaskList() {
 
       let filtered = tasks;
 
-      // Apply view filter
-      switch (currentView) {
-        case 'today':
-          filtered = filtered.filter(
-            (t) =>
-              t.date &&
-              t.date >= todayTime &&
-              t.date < todayTime + 86400000
-          );
-          break;
-        case 'next7days':
-          filtered = filtered.filter(
-            (t) => t.date && t.date >= todayTime && t.date <= nextWeekTime
-          );
-          break;
-        case 'upcoming':
-          filtered = filtered.filter((t) => t.date && t.date >= todayTime);
-          break;
-        case 'all':
-          // No view filter, include all
-          break;
-      }
-
-      // Apply list filter if viewing a specific list
-      if (selectedListId && currentView === 'all') {
+      // If a label is selected, filter by label only (takes priority over views and lists)
+      if (selectedLabelId) {
+        const tasksWithLabel = new Set(
+          taskLabels
+            .filter((tl) => tl.labelId === selectedLabelId)
+            .map((tl) => tl.taskId)
+        );
+        filtered = filtered.filter((t) => tasksWithLabel.has(t.id));
+      } else if (selectedListId) {
+        // If a list is selected (and no label), filter by list only
         filtered = filtered.filter((t) => t.listId === selectedListId);
+      } else {
+        // Otherwise apply view filter (today, next7days, upcoming, or all)
+        switch (currentView) {
+          case 'today':
+            filtered = filtered.filter(
+              (t) =>
+                t.date &&
+                t.date >= todayTime &&
+                t.date < todayTime + 86400000
+            );
+            break;
+          case 'next7days':
+            filtered = filtered.filter(
+              (t) => t.date && t.date >= todayTime && t.date <= nextWeekTime
+            );
+            break;
+          case 'upcoming':
+            filtered = filtered.filter((t) => t.date && t.date >= todayTime);
+            break;
+          case 'all':
+            // No view filter, include all
+            break;
+        }
       }
 
       // Apply completion filter
@@ -86,9 +97,14 @@ export function TaskList() {
     }
 
     setFilteredTasks(finalTasks);
-  }, [tasks, currentView, selectedListId, showCompleted, searchQuery]);
+  }, [tasks, currentView, selectedListId, selectedLabelId, showCompleted, searchQuery, taskLabels]);
 
   const getListName = () => {
+    if (selectedLabelId) {
+      // Show label name if one is selected
+      const label = labels.find((l) => l.id === selectedLabelId);
+      return label ? `${label.emoji} ${label.name}` : 'Tasks';
+    }
     if (selectedListId && currentView === 'all') {
       return lists.find((l) => l.id === selectedListId)?.name || 'Tasks';
     }
@@ -153,7 +169,7 @@ export function TaskList() {
       </div>
 
       {/* Create Task Dialog */}
-      <CreateTaskDialog open={showCreateTask} onOpenChange={setShowCreateTask} />
+      <TaskDialog open={showCreateTask} onOpenChange={setShowCreateTask} />
     </div>
   );
 }
